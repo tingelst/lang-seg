@@ -19,6 +19,48 @@ We present LSeg, a novel model for language-driven semantic image segmentation. 
 Please check our [Video Demo (4k)](https://www.youtube.com/watch?v=bmU75rsmv6s) to further showcase the capabilities of LSeg.
 
 ## Usage
+### Docker
+There are currently some problems using GPUs at build time. We have to build the image manually.
+
+1. Start the base container
+```bash
+sudo docker run --runtime=nvidia --gpus=all -it pytorch/pytorch:1.13.0-cuda11.6-cudnn8-devel bash
+```
+
+2. Install git in the container
+```bash
+apt-get update && apt-get install -y --no-install-recommends git && rm -rf /var/lib/apt/lists/*
+```
+
+3. Install dependencies
+```bash
+pip install git+https://github.com/zhanghang1989/PyTorch-Encoding pytorch-lightning opencv-python imageio ftfy regex tqdm git+https://github.com/openai/CLIP.git altair streamlit protobuf timm tensorboardX matplotlib test-tube wandb notebook
+```
+
+4. Prepare the ADE20k dataset in the running container
+```bash
+cd /workspace/lang-seg
+python prepare_ade20k.py
+```
+
+5. Commit docker image. You can find the name of container by running: `sudo docker ps -a`. Its the name under NAMES, e.g., `recursing_moore`.
+```bash
+sudo docker commit <container_name> lang-seg:latest
+```
+
+
+6. Download the model for the demo on the host from [here](https://drive.google.com/file/d/1ayk6NXURI_vIPlym16f_RG3ffxBWHxvb/view?usp=sharing).
+
+
+7. Run the demo notebook
+```bash
+sudo docker run --runtime=nvidia --gpus=all -it -v <full-path-to-lang-seg>:/workspace/lang-seg -v <full-path-to-folder-with-demo_e200.ckpt>:/workspace/lang-seg/checkpoints --net=host lang-seg:latest jupyter notebook --allow-root
+```
+
+8. Open the notebook in your browser and open the `lseg_demo.ipynb` notebook under the `lang-seg` folder.
+
+
+
 ### Installation
 Option 1: 
 
